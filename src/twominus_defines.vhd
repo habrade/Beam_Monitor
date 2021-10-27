@@ -47,6 +47,8 @@ package TWOMINUS_DEFINES is
   -- IPbus reg fifo slave
   constant WFIFO_ADDR_SLOW_CTRL_CMD : integer := 0;
   constant RFIFO_ADDR_DATA_FIFO     : integer := 0;
+  
+  constant RFIFO_WIDTH : integer := 16;
 
 end TWOMINUS_DEFINES;
 

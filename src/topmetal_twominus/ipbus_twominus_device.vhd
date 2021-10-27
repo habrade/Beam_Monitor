@@ -48,9 +48,9 @@ entity ipbus_twominus_device is
     clk : in std_logic;
     rst : in std_logic;
 
-    -- SPI Reset
-    spi_rst  : out std_logic;
-    spi_busy : in  std_logic;
+--    -- SPI Reset
+--    spi_rst  : out std_logic;
+--    spi_busy : in  std_logic;
 
     -- Chip config fifo
     start_scan : out std_logic;
@@ -261,12 +261,8 @@ begin
   process(clk)
   begin
     if rising_edge(clk) then
-      stat(0)(0) <= spi_busy;
+--      stat(0)(0) <= spi_busy;
       stat(0)(1) <= ad9252_busy;
-
-      stat(1)(0)           <= wfifo_empty(WFIFO_ADDR_SLOW_CTRL_CMD);
-      stat(1)(1)           <= wfifo_prog_full(WFIFO_ADDR_SLOW_CTRL_CMD);
-      stat(1)(19 downto 2) <= wfifo_wr_data_count((WFIFO_ADDR_SLOW_CTRL_CMD+1)*18-1 downto WFIFO_ADDR_SLOW_CTRL_CMD*18);
 
     end if;
   end process;

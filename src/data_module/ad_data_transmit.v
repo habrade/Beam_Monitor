@@ -61,10 +61,13 @@ module ad_data_module #
    output data_fifo_rst ,       
    output data_fifo_wr_clk   ,  
   output  data_fifo_wr_en ,     
-   output [31:0] data_fifo_wr_din     
+   output [31:0] data_fifo_wr_din,     
 //  input  final_data_fifo_full     ,   
 //  input  data_fifo_almost_full 
 //	output [31:0] 			data_bus
+	// DEBUG
+	output adc_fclk_o
+
 );
 
  	
@@ -98,6 +101,8 @@ module ad_data_module #
 	wire [8:0] 					d_status[ADC_CHANEL-1:0];
 	wire [31:0] 				frame_num[ADC_CHANEL-1:0];
 	
+	// DEBUG
+	assign adc_fclk_o = adc_fclk;
 	
 	//assign data_flag = aligned[0];
 

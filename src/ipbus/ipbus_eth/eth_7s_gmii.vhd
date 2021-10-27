@@ -132,6 +132,10 @@ architecture rtl of eth_7s_gmii is
 	signal rx_data_e: std_logic_vector(7 downto 0);
 	signal rx_clk_e, rx_valid_e, rx_last_e, rx_user_e, rx_rst_e, rx_rst_en, rstn: std_logic;
 	signal rx_user_f, rx_user_ef: std_logic_vector(0 downto 0);
+	
+attribute IODELAY_GROUP : STRING;
+attribute IODELAY_GROUP of idelayctrl0: label is "tri_mode_ethernet_mac_iodelay_grp";
+attribute IODELAY_GROUP of fifo: label is "tri_mode_ethernet_mac_iodelay_grp";
 
 begin
 

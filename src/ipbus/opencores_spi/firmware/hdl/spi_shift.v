@@ -50,7 +50,7 @@ module spi_shift (clk, rst, latch, byte_sel, len, lsb, go,
  
   input                          clk;          // system clock
   input                          rst;          // reset
-  input                    [7:0] latch;        // latch signal for storing the data in shift register
+  input                    [3:0] latch;        // latch signal for storing the data in shift register
   input                    [3:0] byte_sel;     // byte select signals for storing the data in shift register
   input [`SPI_CHAR_LEN_BITS-1:0] len;          // data len in bits (minus one)
   input                          lsb;          // lbs first on the line
@@ -127,96 +127,6 @@ module spi_shift (clk, rst, latch, byte_sel, len, lsb, go,
   begin
     if (rst)
       data   <= #Tp {`SPI_MAX_CHAR{1'b0}};
-`ifdef SPI_MAX_CHAR_256
-    else if (latch[0] && !tip)
-      begin
-        if (byte_sel[3])
-          data[31:24] <= #Tp p_in[31:24];
-        if (byte_sel[2])
-          data[23:16] <= #Tp p_in[23:16];
-        if (byte_sel[1])
-          data[15:8] <= #Tp p_in[15:8];
-        if (byte_sel[0])
-          data[7:0] <= #Tp p_in[7:0];
-      end
-    else if (latch[1] && !tip)
-      begin
-        if (byte_sel[3])
-          data[63:56] <= #Tp p_in[31:24];
-        if (byte_sel[2])
-          data[55:48] <= #Tp p_in[23:16];
-        if (byte_sel[1])
-          data[47:40] <= #Tp p_in[15:8];
-        if (byte_sel[0])
-          data[39:32] <= #Tp p_in[7:0];
-      end
-    else if (latch[2] && !tip)
-      begin
-        if (byte_sel[3])
-          data[95:88] <= #Tp p_in[31:24];
-        if (byte_sel[2])
-          data[87:80] <= #Tp p_in[23:16];
-        if (byte_sel[1])
-          data[79:72] <= #Tp p_in[15:8];
-        if (byte_sel[0])
-          data[71:64] <= #Tp p_in[7:0];
-      end
-    else if (latch[3] && !tip)
-      begin
-        if (byte_sel[3])
-          data[127:120] <= #Tp p_in[31:24];
-        if (byte_sel[2])
-          data[119:112] <= #Tp p_in[23:16];
-        if (byte_sel[1])
-          data[111:104] <= #Tp p_in[15:8];
-        if (byte_sel[0])
-          data[103:96] <= #Tp p_in[7:0];
-      end
-    else if (latch[4] && !tip)
-      begin
-        if (byte_sel[3])
-          data[159:152] <= #Tp p_in[31:24];
-        if (byte_sel[2])
-          data[151:144] <= #Tp p_in[23:16];
-        if (byte_sel[1])
-          data[143:136] <= #Tp p_in[15:8];
-        if (byte_sel[0])
-          data[135:128] <= #Tp p_in[7:0];
-      end
-    else if (latch[5] && !tip)
-      begin
-        if (byte_sel[3])
-          data[191:184] <= #Tp p_in[31:24];
-        if (byte_sel[2])
-          data[183:176] <= #Tp p_in[23:16];
-        if (byte_sel[1])
-          data[175:168] <= #Tp p_in[15:8];
-        if (byte_sel[0])
-          data[167:160] <= #Tp p_in[7:0];
-      end
-    else if (latch[6] && !tip)
-      begin
-        if (byte_sel[3])
-          data[223:216] <= #Tp p_in[31:24];
-        if (byte_sel[2])
-          data[215:208] <= #Tp p_in[23:16];
-        if (byte_sel[1])
-          data[207:200] <= #Tp p_in[15:8];
-        if (byte_sel[0])
-          data[199:192] <= #Tp p_in[7:0];
-      end
-    else if (latch[7] && !tip)
-      begin
-        if (byte_sel[3])
-          data[255:248] <= #Tp p_in[31:24];
-        if (byte_sel[2])
-          data[247:240] <= #Tp p_in[23:16];
-        if (byte_sel[1])
-          data[239:232] <= #Tp p_in[15:8];
-        if (byte_sel[0])
-          data[231:224] <= #Tp p_in[7:0];
-      end
-`else
 `ifdef SPI_MAX_CHAR_128
     else if (latch[0] && !tip)
       begin
@@ -318,7 +228,6 @@ module spi_shift (clk, rst, latch, byte_sel, len, lsb, go,
           data[`SPI_MAX_CHAR-1:24] <= #Tp p_in[`SPI_MAX_CHAR-1:24];
       `endif
       end
-`endif
 `endif
 `endif
     else

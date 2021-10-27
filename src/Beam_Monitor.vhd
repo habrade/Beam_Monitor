@@ -36,11 +36,6 @@ entity Beam_Monitor is port(
   tm_reset : out std_logic;
   tm_start : out std_logic;
 
-  -- AD9512
-  ad9512_sclk : out std_logic;
-  ad9512_sdio : out std_logic;
-  ad9512_csb  : out std_logic;
-
   -- AD9252
   adc_data_p : in std_logic_vector(3 downto 0);
   adc_data_n : in std_logic_vector(3 downto 0);
@@ -61,9 +56,13 @@ entity Beam_Monitor is port(
   ad_9512_done     : out std_logic;
   topmetal_working : out std_logic;
 
-
-  -- SPI Master
-  ss   : out std_logic_vector(N_SS - 1 downto 0);
+  -- AD9512
+--  ad9512_sclk     : out std_logic;
+--  ad9512_sdio     : out std_logic;
+--  ad9512_csb      : out std_logic;
+  ad9512_function : out std_logic;
+--  -- SPI Master
+  ss   : out std_logic_vector(0 downto 0);
   mosi : out std_logic;
   miso : in  std_logic;
   sclk : out std_logic
@@ -74,6 +73,7 @@ architecture rtl of Beam_Monitor is
 
 
   signal sysclk     : std_logic;
+  signal sysclk_i   : std_logic;
   signal global_rst : std_logic;
 
 
@@ -93,6 +93,7 @@ architecture rtl of Beam_Monitor is
   -- AD9512
 
   signal AD9512_BUSY : std_logic;
+  signal AD9512_RDY  : std_logic;
   signal AD9512_WE   : std_logic;
   signal AD9512_DATA : std_logic_vector(31 downto 0);
 
@@ -157,15 +158,22 @@ architecture rtl of Beam_Monitor is
   -- Readout
 
   -- SPI 
-  signal spi_trans_end : std_logic;
+--  signal spi_trans_end : std_logic;
 
   -- constant
   constant ch          : std_logic_vector := X"FF";
   constant chip_number : std_logic_vector := X"0";
+  
+  constant N_SS: positive := 1;   -- Number of SPI Slaves
+
 
   -- DEBUG
   attribute mark_debug : string;
 
+
+	signal adc_fclk: std_logic;
+
+  signal clk_div : std_logic_vector(N_CLK -1 downto 0);
 
 
 begin
@@ -206,11 +214,23 @@ begin
 --      I  => rx_fpga_tmp1                -- 1-bit input: Primary clock
 --      );
 
-  ibufgds0 : IBUFGDS port map(
-    i  => sysclk_p,
-    ib => sysclk_n,
-    o  => sysclk
-    );
+  IBUFDS_inst : IBUFDS
+    generic map (
+      DIFF_TERM    => false,            -- Differential Termination
+      IBUF_LOW_PWR => false,  -- Low power (TRUE) vs. performance (FALSE) setting for referenced I/O standards
+      IOSTANDARD   => "DEFAULT"
+      )
+    port map (
+      O  => sysclk_i,                   -- Buffer output
+      I  => sysclk_p,  -- Diff_p buffer input (connect directly to top-level port)
+      IB => sysclk_n  -- Diff_n buffer input (connect directly to top-level port)
+      );
+
+  BUFG_inst : BUFG
+    port map (
+      I => sysclk_i,
+      O => sysclk
+      );
 
 
   twominus_clocks : entity work.twominus_clock_gen
@@ -287,13 +307,6 @@ begin
       nuke     => nuke,
       soft_rst => soft_rst,
 
-      -- ADC9512
-      AD9512_CLK  => clk_10m,
-      AD9512_RST  => clk_10m_rst,
-      AD9512_BUSY => AD9512_BUSY,
-      AD9512_WE   => AD9512_WE,
-      AD9512_DATA => AD9512_DATA,
-
 
       -- twominus
       tm_start_scan => tm_start_scan,
@@ -331,29 +344,34 @@ begin
       data_fifo_wr_din      => data_fifo_wr_din,
 
       -- ipbus SPI master
-      ss   => open,
+      ss   => ss,
       mosi => mosi,
       miso => miso,
       sclk => sclk,
+      
+      ad9512_function => ad9512_function,
 
-      spi_trans_end => spi_trans_end
+--      spi_trans_end => spi_trans_end,
+      
+		  -- FREQ CTR
+			clk_ctr_in => clk_div
 
       );
+      
+--	AD9512_BUSY <= not AD9512_RDY;
+--  ad9512_refresh : entity work.ad9512_refresh
+--    port map(
+--      clk => clk_200m,
+--      rst => global_rst or clk_200m_rst,
 
+--      din     => AD9512_DATA,
+--      din_vld => AD9512_WE,
+--      din_rdy => AD9512_RDY,
 
-  ad9512_refresh : entity work.ad9512_refresh
-    port map(
-      clk => clk_200m,
-      rst => global_rst or clk_200m_rst,
-
-      din     => AD9512_DATA,
-      din_vld => AD9512_WE,
-      din_rdy => AD9512_BUSY,
-
-      ad9512_sclk => ad9512_sclk,
-      ad9512_sdio => ad9512_sdio,
-      ad9512_csb  => ad9512_csb
-      );
+--      ad9512_sclk => ad9512_sclk,
+--      ad9512_sdio => ad9512_sdio,
+--      ad9512_csb  => ad9512_csb
+--      );
 
   ad9252_control : entity work.ad9252_control
     port map(
@@ -436,13 +454,16 @@ begin
       data_fifo_wr_en  => data_fifo_wr_en,
 --      data_fifo_full               => data_fifo_full,
 --      data_fifo_almost_full        => data_fifo_almost_full,
-      data_fifo_wr_din => data_fifo_wr_din
+      data_fifo_wr_din => data_fifo_wr_din,
+      
+      adc_fclk_o => adc_fclk
 
       );
 
   adc_data_aligned <= data_aligned;
 
 
+	tm_clk_o <= clk_10m;
   twominus_scan : entity work.twominus_scan
     port map(
       clk        => tm_clk_o,
@@ -456,6 +477,15 @@ begin
 
   topmetal_working <= tm_speak_o;
 
+
+  freq_div : entity work.freq_ctr_div
+    generic map(
+      N_CLK => N_CLK
+      )
+    port map(
+      clk    => tm_clk_o & adc_fclk & data_fifo_wr_clk,
+      clkdiv => clk_div
+      );
 
 
 end rtl;

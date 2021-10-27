@@ -70,7 +70,7 @@ end ipbus_read_fifo;
 
 architecture rtl of ipbus_read_fifo is
 
-  constant RDFIFO_ADD_NUM : natural := 17;  -- the depth of the read fifo is 2**RDFIFO_ADD_NUM
+  constant RDFIFO_ADD_NUM : natural := 15;  -- the depth of the read fifo is 2**RDFIFO_ADD_NUM
 
   component fwft_fifo_32_2048 is
     port (

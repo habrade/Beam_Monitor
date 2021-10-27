@@ -4,6 +4,7 @@ use work.ipbus.all;
 use work.ipbus_reg_types.all;
 use work.ipbus_decode_payload.all;
 
+use work.global_defines.all;
 use work.twominus_defines.all;
 
 
@@ -25,30 +26,31 @@ entity ipbus_payload is
     nuke     : out std_logic;
     soft_rst : out std_logic;
 
-    -- AD9512
-    AD9512_CLK  : in  std_logic;
-    AD9512_RST  : in  std_logic;
-    AD9512_BUSY : in  std_logic;
-    AD9512_WE   : out std_logic;
-    AD9512_DATA : out std_logic_vector(31 downto 0);
+--    -- AD9512
+--    AD9512_CLK      : in  std_logic;
+--    AD9512_RST      : in  std_logic;
+--    AD9512_BUSY     : in  std_logic;
+--    AD9512_WE       : out std_logic;
+--    ad9252_function : out std_logic;
+--    AD9512_DATA     : out std_logic_vector(31 downto 0);
 
     -- Two minus
     tm_start_scan : out std_logic;
     tm_reset_scan : out std_logic;
-    
-    ad9252_soft_rst : out std_logic;
-    ad9252_soft_path_rst : out std_logic;
-    ad9252_soft_pack_start : out std_logic;
-    ad9252_busy : in std_logic;
-    
 
-		resync: out std_logic;
-		data_type:  out std_logic_vector(15 downto 0);
-		time_high: out std_logic_vector(15 downto 0);
-		time_mid: out std_logic_vector(15 downto 0);
-		time_low: out std_logic_vector(15 downto 0);
-		time_usec:  out std_logic_vector(31 downto 0);
-		chip_cnt:  out std_logic_vector(15 downto 0);
+    ad9252_soft_rst        : out std_logic;
+    ad9252_soft_path_rst   : out std_logic;
+    ad9252_soft_pack_start : out std_logic;
+    ad9252_busy            : in  std_logic;
+
+
+    resync    : out std_logic;
+    data_type : out std_logic_vector(15 downto 0);
+    time_high : out std_logic_vector(15 downto 0);
+    time_mid  : out std_logic_vector(15 downto 0);
+    time_low  : out std_logic_vector(15 downto 0);
+    time_usec : out std_logic_vector(31 downto 0);
+    chip_cnt  : out std_logic_vector(15 downto 0);
 
     -- FIFO
     slow_ctrl_fifo_rd_clk        : in  std_logic;
@@ -71,7 +73,14 @@ entity ipbus_payload is
     miso : in  std_logic;
     sclk : out std_logic;
 
-    spi_trans_end : out std_logic
+    ad9512_function : out std_logic;
+
+--    spi_trans_end : out std_logic;
+
+
+    -- FREQ CTR
+    clk_ctr_in : in std_logic_vector(N_CLK-1 downto 0)
+
     -- DEBUG
 
     );
@@ -84,9 +93,16 @@ architecture rtl of ipbus_payload is
   signal ipbr : ipb_rbus_array(N_SLAVES - 1 downto 0);
 
 
-  signal spi_rst  : std_logic;          -- from ipbus control module
-  signal rst_spi  : std_logic;          -- to SPI module
-  signal spi_busy : std_logic;
+  signal spi_rst : std_logic;           -- from ipbus control module
+  signal rst_spi : std_logic;           -- to SPI module
+--  signal spi_busy : std_logic;
+
+  --Debug
+  attribute mark_debug         : string;
+  attribute mark_debug of ss   : signal is "true";
+  attribute mark_debug of mosi : signal is "true";
+  attribute mark_debug of miso : signal is "true";
+  attribute mark_debug of sclk : signal is "true";
 
 begin
 
@@ -120,12 +136,14 @@ begin
       ipb_in  => ipbw(N_SLV_AD9512),
       ipb_out => ipbr(N_SLV_AD9512),
 
-      clk => AD9512_CLK,
-      rst => AD9512_RST,
+      clk => ipb_clk,
+      rst => ipb_rst,
 
-      AD9512_BUSY => AD9512_BUSY,
-      AD9512_WE   => AD9512_WE,
-      AD9512_DATA => AD9512_DATA
+      ad9512_function => ad9512_function,
+
+      spi_rst => spi_rst
+--      spi_busy => spi_busy
+
       );
 
 
@@ -135,16 +153,16 @@ begin
       N_SS => N_SS
       )
     port map(
-      clk           => ipb_clk,
-      rst           => rst_spi,
-      ipb_in        => ipbw(N_SLV_SPI),
-      ipb_out       => ipbr(N_SLV_SPI),
-      spi_busy      => spi_busy,
-      spi_trans_end => spi_trans_end,
-      ss            => ss,
-      mosi          => mosi,
-      miso          => miso,
-      sclk          => sclk
+      clk     => ipb_clk,
+      rst     => rst_spi,
+      ipb_in  => ipbw(N_SLV_SPI),
+      ipb_out => ipbr(N_SLV_SPI),
+--      spi_busy      => spi_busy,
+--      spi_trans_end => spi_trans_end,
+      ss      => ss,
+      mosi    => mosi,
+      miso    => miso,
+      sclk    => sclk
       );
 
 
@@ -158,29 +176,29 @@ begin
       clk => clk,
       rst => rst,
 
-      spi_rst  => spi_rst,
-      spi_busy => spi_busy,
+--      spi_rst  => spi_rst,
+--      spi_busy => spi_busy,
 
       -- Two minus
       start_scan => tm_start_scan,
       reset_scan => tm_reset_scan,
-      
+
       -- ad9252
-     	ad9252_soft_rst				=>	ad9252_soft_rst, 
-			ad9252_soft_path_rst 		=>		ad9252_soft_path_rst,
-			ad9252_soft_pack_start	=>		ad9252_soft_pack_start, 
+      ad9252_soft_rst        => ad9252_soft_rst,
+      ad9252_soft_path_rst   => ad9252_soft_path_rst,
+      ad9252_soft_pack_start => ad9252_soft_pack_start,
 
-						ad9252_busy	=>		ad9252_busy, 
+      ad9252_busy => ad9252_busy,
 
-			resync	=>		resync, 
-      data_type            => data_type,
-      time_high            => time_high,
-      time_mid            => time_mid,
-      time_low            => time_low,
-      time_usec            => time_usec,
-      chip_cnt            => chip_cnt,
-    
-			
+      resync    => resync,
+      data_type => data_type,
+      time_high => time_high,
+      time_mid  => time_mid,
+      time_low  => time_low,
+      time_usec => time_usec,
+      chip_cnt  => chip_cnt,
+
+
 
       --FIFO
       slow_ctrl_fifo_rd_clk        => slow_ctrl_fifo_rd_clk,
@@ -197,6 +215,20 @@ begin
       data_fifo_almost_full        => data_fifo_almost_full,
       data_fifo_wr_din             => data_fifo_wr_din
       );
+
+
+  slave4 : entity work.ipbus_freq_ctr
+    generic map(
+      N_CLK => N_CLK
+      )
+    port map(
+      clk     => ipb_clk,
+      rst     => ipb_rst,
+      ipb_in  => ipbw(N_SLV_FREQ_CTR),
+      ipb_out => ipbr(N_SLV_FREQ_CTR),
+      clkdiv  => clk_ctr_in
+      );
+
 
 end rtl;
 

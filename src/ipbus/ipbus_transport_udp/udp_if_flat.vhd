@@ -37,7 +37,7 @@ ENTITY UDP_if IS
 	generic(
 -- Number of address bits to select RX or TX buffer
 -- Number of RX and TX buffers is 2**BUFWIDTH
-	  BUFWIDTH: natural := 2;
+	  BUFWIDTH: natural := 1;
 
 -- Numer of address bits to select internal buffer
 -- Number of internal buffers is 2**INTERNALWIDTH
@@ -45,7 +45,7 @@ ENTITY UDP_if IS
 
 -- Number of address bits within each buffer
 -- Size of each buffer is 2**ADDRWIDTH
-  	ADDRWIDTH: natural := 11;
+  	ADDRWIDTH: natural := 12;
 
 -- UDP port for IPbus traffic in this instance
  	 IPBUSPORT: std_logic_vector(15 DOWNTO 0) := x"C351";

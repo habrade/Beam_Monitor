@@ -1,7 +1,7 @@
 #!/bin/bash
 
-PRJ_NAME=JadePix3_Readout
-IMPL="impl_3"
+PRJ_NAME=Beam_Monitor
+IMPL="impl_1"
 
 BUILD_DIR=../build
 if [[ ! -d $BUILD_DIR ]]; then
@@ -28,5 +28,5 @@ else
     cp ${LTX} ${BUILD_DIR}
 fi
 
-. /opt/Xilinx/Vivado/2020.2/settings64.sh
+. /opt/Xilinx/Vivado/2021.1/settings64.sh
 vivado -nolog -nojournal -mode tcl -source ./gen_mcs.tcl -tclargs "$PRJ_NAME" "$BUILD_DIR" "$BIT"

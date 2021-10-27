@@ -66,34 +66,35 @@
 // Use SPI_MAX_CHAR for fine tuning the exact number, when using
 // SPI_MAX_CHAR_32, SPI_MAX_CHAR_24, SPI_MAX_CHAR_16, SPI_MAX_CHAR_8.
 //
-`define SPI_MAX_CHAR_256
+`define SPI_MAX_CHAR_128
+//`define SPI_MAX_CHAR_64
 //`define SPI_MAX_CHAR_32
 //`define SPI_MAX_CHAR_24
 //`define SPI_MAX_CHAR_16
 //`define SPI_MAX_CHAR_8
  
-`ifdef SPI_MAX_CHAR_256
-  `define SPI_MAX_CHAR          256
-  `define SPI_CHAR_LEN_BITS     8
-`endif
-`ifdef SPI_MAX_CHAR_64
-  `define SPI_MAX_CHAR          128
+`ifdef SPI_MAX_CHAR_128
+  `define SPI_MAX_CHAR          128  // Can only be set to 128 
   `define SPI_CHAR_LEN_BITS     7
 `endif
-`ifdef SPI_MAX_CHAR_32
-  `define SPI_MAX_CHAR          64
+`ifdef SPI_MAX_CHAR_64
+  `define SPI_MAX_CHAR          64   // Can only be set to 64 
   `define SPI_CHAR_LEN_BITS     6
 `endif
 `ifdef SPI_MAX_CHAR_32
-  `define SPI_MAX_CHAR          32
+  `define SPI_MAX_CHAR          32   // Can be set from 25 to 32 
+  `define SPI_CHAR_LEN_BITS     5
+`endif
+`ifdef SPI_MAX_CHAR_24
+  `define SPI_MAX_CHAR          24   // Can be set from 17 to 24 
   `define SPI_CHAR_LEN_BITS     5
 `endif
 `ifdef SPI_MAX_CHAR_16
-  `define SPI_MAX_CHAR          16  
+  `define SPI_MAX_CHAR          16   // Can be set from 9 to 16 
   `define SPI_CHAR_LEN_BITS     4
 `endif
 `ifdef SPI_MAX_CHAR_8
-  `define SPI_MAX_CHAR          8   
+  `define SPI_MAX_CHAR          8    // Can be set from 1 to 8 
   `define SPI_CHAR_LEN_BITS     3
 `endif
  
@@ -104,7 +105,6 @@
 `define SPI_SS_NB_8
 //`define SPI_SS_NB_16
 //`define SPI_SS_NB_24
-//`define SPI_SS_NB_32
 //`define SPI_SS_NB_32
  
 `ifdef SPI_SS_NB_8
@@ -123,7 +123,7 @@
 //
 // Bits of WISHBONE address used for partial decoding of SPI registers.
 //
-`define SPI_OFS_BITS	          4:1
+`define SPI_OFS_BITS	          4:2
  
 //
 // Register offset
@@ -132,21 +132,13 @@
 `define SPI_RX_1                1
 `define SPI_RX_2                2
 `define SPI_RX_3                3
-`define SPI_RX_4                4
-`define SPI_RX_5                5
-`define SPI_RX_6                6
-`define SPI_RX_7                7
 `define SPI_TX_0                0
 `define SPI_TX_1                1
 `define SPI_TX_2                2
 `define SPI_TX_3                3
-`define SPI_TX_4                4
-`define SPI_TX_5                5
-`define SPI_TX_6                6
-`define SPI_TX_7                7
-`define SPI_CTRL                8
-`define SPI_DEVIDE              9
-`define SPI_SS                  10
+`define SPI_CTRL                4
+`define SPI_DEVIDE              5
+`define SPI_SS                  6
  
 //
 // Number of bits in ctrl register
@@ -162,5 +154,5 @@
 `define SPI_CTRL_TX_NEGEDGE     10
 `define SPI_CTRL_RX_NEGEDGE     9
 `define SPI_CTRL_GO             8
-//`define SPI_CTRL_RES_1          7
-`define SPI_CTRL_CHAR_LEN       7:0
+`define SPI_CTRL_RES_1          7
+`define SPI_CTRL_CHAR_LEN       6:0
