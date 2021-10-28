@@ -6,7 +6,7 @@
 -- Author     : sdong  <sdong@sdong-ubuntu>
 -- Company    : 
 -- Created    : 2021-10-21
--- Last update: 2021-10-21
+-- Last update: 2021-10-28
 -- Platform   : 
 -- Standard   : VHDL'2008
 -------------------------------------------------------------------------------
@@ -53,6 +53,8 @@ architecture behv of twominus_scan is
   attribute mark_debug of rst_out    : signal is "true";
   attribute mark_debug of start_scan : signal is "true";
   attribute mark_debug of reset_scan : signal is "true";
+  attribute mark_debug of state_reg  : signal is "true";
+  attribute mark_debug of state_next : signal is "true";
 
 begin
   -- architecture body

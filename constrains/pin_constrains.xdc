@@ -82,7 +82,7 @@ set_property PACKAGE_PIN F9 [get_ports phy_rst]
 
 #set_property PACKAGE_PIN G9 [get_ports mdc]
 #set_property PACKAGE_PIN G14 [get_ports mdio]
-set_property PACKAGE_PIN F9 [get_ports phy_reset_n]
+set_property PACKAGE_PIN F9 [get_ports phy_rst]
 
 set_property PACKAGE_PIN M25 [get_ports ddr_init_done]
 set_property PACKAGE_PIN V11 [get_ports hard_reset]

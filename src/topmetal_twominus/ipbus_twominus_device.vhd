@@ -6,7 +6,7 @@
 -- Author     : sdong  <sdong@sdong-ubuntu>
 -- Company    : 
 -- Created    : 2021-10-22
--- Last update: 2021-10-22
+-- Last update: 2021-10-28
 -- Platform   : 
 -- Standard   : VHDL2008
 -------------------------------------------------------------------------------
@@ -48,21 +48,16 @@ entity ipbus_twominus_device is
     clk : in std_logic;
     rst : in std_logic;
 
---    -- SPI Reset
---    spi_rst  : out std_logic;
---    spi_busy : in  std_logic;
-
     -- Chip config fifo
     start_scan : out std_logic;
     reset_scan : out std_logic;
 
-    ad9252_soft_rst        : out std_logic;
-    ad9252_soft_path_rst   : out std_logic;
-    ad9252_soft_pack_start : out std_logic;
+    data_soft_rst        : out std_logic;
+    data_soft_path_rst   : out std_logic;
+    data_soft_pack_start : out std_logic;
 
-    ad9252_busy : in std_logic;
+    data_resync : out std_logic;
 
-    resync    : out std_logic;
     data_type : out std_logic_vector(15 downto 0);
     time_high : out std_logic_vector(15 downto 0);
     time_mid  : out std_logic_vector(15 downto 0);
@@ -70,6 +65,7 @@ entity ipbus_twominus_device is
     time_usec : out std_logic_vector(31 downto 0);
     chip_cnt  : out std_logic_vector(15 downto 0);
 
+    dp_status : in std_logic_vector(8 downto 0);
 
     -- FIFO
     slow_ctrl_fifo_rd_clk        : in  std_logic;
@@ -91,7 +87,7 @@ end ipbus_twominus_device;
 architecture behv of ipbus_twominus_device is
   -- IPbus reg
   constant SYNC_REG_ENA               : boolean := false;
-  constant N_STAT                     : integer := 2;
+  constant N_STAT                     : integer := 1;
   constant N_CTRL                     : integer := 5;
   constant N_WFIFO                    : integer := 0;
   constant N_RFIFO                    : integer := 1;
@@ -116,18 +112,11 @@ architecture behv of ipbus_twominus_device is
   signal reset_scan_tmp : std_logic;
 
   -- ad9252
-  signal ad9252_soft_rst_tmp        : std_logic;
-  signal ad9252_soft_path_rst_tmp   : std_logic;
-  signal ad9252_soft_pack_start_tmp : std_logic;
+  signal data_soft_rst_tmp        : std_logic;
+  signal data_soft_path_rst_tmp   : std_logic;
+  signal data_soft_pack_start_tmp : std_logic;
 
-  signal resync_tmp : std_logic;
-
-  signal data_type_tmp : std_logic_vector(15 downto 0);
-  signal time_high_tmp : std_logic_vector(15 downto 0);
-  signal time_mid_tmp  : std_logic_vector(15 downto 0);
-  signal time_low_tmp  : std_logic_vector(15 downto 0);
-  signal time_usec_tmp : std_logic_vector(31 downto 0);
-  signal chip_cnt_tmp  : std_logic_vector(15 downto 0);
+  signal data_resync_tmp : std_logic;
 
 
   signal rst_rfifo : std_logic := '0';
@@ -203,21 +192,19 @@ begin
   process(clk)
   begin
     if rising_edge(clk) then
-      start_scan_tmp             <= ctrl(0)(0);
-      reset_scan_tmp             <= ctrl(0)(1);
-      ad9252_soft_rst_tmp        <= ctrl(0)(2);
-      ad9252_soft_path_rst_tmp   <= ctrl(0)(3);
-      ad9252_soft_pack_start_tmp <= ctrl(0)(4);
+      start_scan_tmp           <= ctrl(0)(0);
+      reset_scan_tmp           <= ctrl(0)(1);
+      data_soft_rst_tmp        <= ctrl(0)(2);
+      data_soft_path_rst_tmp   <= ctrl(0)(3);
+      data_soft_pack_start_tmp <= ctrl(0)(4);
+      data_resync_tmp          <= ctrl(0)(5);
 
-      resync_tmp <= ctrl(0)(5);
-
-      data_type_tmp <= ctrl(1)(15 downto 0);
-      time_high_tmp <= ctrl(1)(31 downto 16);
-      time_mid_tmp <= ctrl(2)(15 downto 0);
-      time_low_tmp <= ctrl(2)(31 downto 16);
-      time_usec_tmp <= ctrl(3);
-      chip_cnt_tmp <= ctrl(4)(15 downto 0);
-
+      data_type <= ctrl(1)(15 downto 0);
+      time_high <= ctrl(1)(31 downto 16);
+      time_mid  <= ctrl(2)(15 downto 0);
+      time_low  <= ctrl(2)(31 downto 16);
+      time_usec <= ctrl(3);
+      chip_cnt  <= ctrl(4)(15 downto 0);
 
       ctrl_reg_stb_r <= ctrl_reg_stb;
       stat_reg_stb_r <= stat_reg_stb;
@@ -230,28 +217,21 @@ begin
     if rising_edge(clk) then
 
       if ctrl_reg_stb_r(0) = '1' then
-        start_scan             <= start_scan_tmp;
-        reset_scan             <= reset_scan_tmp;
-        ad9252_soft_rst        <= ad9252_soft_rst_tmp;
-        ad9252_soft_path_rst   <= ad9252_soft_path_rst_tmp;
-        ad9252_soft_pack_start <= ad9252_soft_pack_start_tmp;
-        resync                 <= resync_tmp;
-        data_type              <= data_type_tmp;
-        time_high              <= time_high_tmp;
-        time_mid               <= time_mid_tmp;
-        time_low               <= time_low_tmp;
-        time_usec              <= time_usec_tmp;
-        chip_cnt               <= chip_cnt_tmp;
+        start_scan <= start_scan_tmp;
+        reset_scan <= reset_scan_tmp;
+
+        data_soft_rst        <= data_soft_rst_tmp;
+        data_soft_path_rst   <= data_soft_path_rst_tmp;
+        data_soft_pack_start <= data_soft_pack_start_tmp;
+        data_resync          <= data_resync_tmp;
       else
         start_scan <= '0';
         reset_scan <= '0';
-        resync     <= '0';
-        data_type <= (others => '0');
-        time_high <= (others => '0');
-        time_mid  <= (others => '0');
-        time_low  <= (others => '0');
-        time_usec <= (others => '0');
-        chip_cnt  <= (others => '0');
+
+        data_soft_rst        <= '0';
+        data_soft_path_rst   <= '0';
+        data_soft_pack_start <= '0';
+        data_resync          <= '0';
       end if;
     end if;
   end process;
@@ -261,8 +241,7 @@ begin
   process(clk)
   begin
     if rising_edge(clk) then
---      stat(0)(0) <= spi_busy;
-      stat(0)(1) <= ad9252_busy;
+      stat(0)(8 downto 0) <= dp_status;
 
     end if;
   end process;

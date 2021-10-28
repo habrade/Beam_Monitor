@@ -11,7 +11,7 @@
                         "type": "XSDB_V3",
                         "name": "dbg_hub",
                         "spec": "labtools_xsdbm_v3",
-                        "clk_input_freq_hz": "31250000"
+                        "clk_input_freq_hz": "9999999"
                     },
                     {
                         "type": "ILA_V3",
@@ -29,17 +29,20 @@
                                 "id": 0,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
-                                "isVector": false,
+                                "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 0,
+                                "rightIndex": 1,
                                 "portIndex": 0,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/slave2/ss",
+                                        "name": "twominus_scan/state_next",
                                         "isBus": true,
                                         "subnets": [
                                             {
-                                                "name": "ipbus_payload/slave2/ss[0]"
+                                                "name": "twominus_scan/state_next[1]"
+                                            },
+                                            {
+                                                "name": "twominus_scan/state_next[0]"
                                             }
                                         ]
                                     }
@@ -50,14 +53,24 @@
                                 "id": 1,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
-                                "isVector": false,
+                                "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 0,
+                                "rightIndex": 1,
                                 "portIndex": 1,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/slave2/spi/go",
-                                        "isBus": false
+                                        "name": "twominus_scan/state_reg",
+                                        "isBus": true,
+                                        "subnets": [
+                                            {
+                                                "name": "twominus_scan/state_reg[1]",
+                                                "parentNetId": 2
+                                            },
+                                            {
+                                                "name": "twominus_scan/state_reg[0]",
+                                                "parentNetId": 3
+                                            }
+                                        ]
                                     }
                                 ]
                             },
@@ -66,14 +79,22 @@
                                 "id": 2,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
-                                "isVector": false,
+                                "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 0,
+                                "rightIndex": 1,
                                 "portIndex": 2,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/slave2/miso",
-                                        "isBus": false
+                                        "name": "twominus_scan/rst_cnt",
+                                        "isBus": true,
+                                        "subnets": [
+                                            {
+                                                "name": "twominus_scan/rst_cnt[1]"
+                                            },
+                                            {
+                                                "name": "twominus_scan/rst_cnt[0]"
+                                            }
+                                        ]
                                     }
                                 ]
                             },
@@ -88,7 +109,7 @@
                                 "portIndex": 3,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/slave2/mosi",
+                                        "name": "twominus_scan/reset_scan",
                                         "isBus": false
                                     }
                                 ]
@@ -104,8 +125,112 @@
                                 "portIndex": 4,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/slave2/sclk",
+                                        "name": "twominus_scan/rst_out",
                                         "isBus": false
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "probe5",
+                                "id": 5,
+                                "type": "DATA_TRIGGER",
+                                "direction": "IN",
+                                "isVector": false,
+                                "leftIndex": 0,
+                                "rightIndex": 0,
+                                "portIndex": 5,
+                                "nets": [
+                                    {
+                                        "name": "twominus_scan/speak",
+                                        "isBus": false
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "probe6",
+                                "id": 6,
+                                "type": "DATA_TRIGGER",
+                                "direction": "IN",
+                                "isVector": false,
+                                "leftIndex": 0,
+                                "rightIndex": 0,
+                                "portIndex": 6,
+                                "nets": [
+                                    {
+                                        "name": "twominus_scan/start",
+                                        "isBus": false
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "probe7",
+                                "id": 7,
+                                "type": "DATA_TRIGGER",
+                                "direction": "IN",
+                                "isVector": false,
+                                "leftIndex": 0,
+                                "rightIndex": 0,
+                                "portIndex": 7,
+                                "nets": [
+                                    {
+                                        "name": "twominus_scan/start_scan",
+                                        "isBus": false
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "parent_nets": [
+                    {
+                        "id": 2,
+                        "name": "twominus_scan/state_reg[1]",
+                        "state_reg": [
+                            {
+                                "name": "twominus_scan/state_reg_reg[1]",
+                                "states": [
+                                    {
+                                        "name": "idle",
+                                        "val": "00"
+                                    },
+                                    {
+                                        "name": "reset_chip",
+                                        "val": "01"
+                                    },
+                                    {
+                                        "name": "ass_start",
+                                        "val": "10"
+                                    },
+                                    {
+                                        "name": "ass_speak",
+                                        "val": "11"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 3,
+                        "name": "twominus_scan/state_reg[0]",
+                        "state_reg": [
+                            {
+                                "name": "twominus_scan/state_reg_reg[0]",
+                                "states": [
+                                    {
+                                        "name": "idle",
+                                        "val": "00"
+                                    },
+                                    {
+                                        "name": "reset_chip",
+                                        "val": "01"
+                                    },
+                                    {
+                                        "name": "ass_start",
+                                        "val": "10"
+                                    },
+                                    {
+                                        "name": "ass_speak",
+                                        "val": "11"
                                     }
                                 ]
                             }

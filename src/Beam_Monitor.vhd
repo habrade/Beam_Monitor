@@ -1,3 +1,25 @@
+-------------------------------------------------------------------------------
+-- Title      : Beam monitor top module
+-- Project    : 
+-------------------------------------------------------------------------------
+-- File       : Beam_Monitor.vhd
+-- Author     : sdong  <sdong@sdong-ubuntu>
+-- Company    : 
+-- Created    : 2021-10-28
+-- Last update: 2021-10-28
+-- Platform   : 
+-- Standard   : VHDL'93/02
+-------------------------------------------------------------------------------
+-- Description: 
+-------------------------------------------------------------------------------
+-- Copyright (c) 2021 
+-------------------------------------------------------------------------------
+-- Revisions  :
+-- Date        Version  Author  Description
+-- 2021-10-28  1.0      sdong   Created
+-------------------------------------------------------------------------------
+
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.NUMERIC_STD.all;
@@ -48,24 +70,18 @@ entity Beam_Monitor is port(
   ad9252_sdio : out std_logic;
   ad9252_csb  : out std_logic;
 
-
   -- show some status
   adc_data_aligned : out std_logic;
---  dac_config_done  : out std_logic;
   ad_9252_done     : out std_logic;
   ad_9512_done     : out std_logic;
   topmetal_working : out std_logic;
 
-  -- AD9512
---  ad9512_sclk     : out std_logic;
---  ad9512_sdio     : out std_logic;
---  ad9512_csb      : out std_logic;
   ad9512_function : out std_logic;
 --  -- SPI Master
-  ss   : out std_logic_vector(0 downto 0);
-  mosi : out std_logic;
-  miso : in  std_logic;
-  sclk : out std_logic
+  ss              : out std_logic_vector(0 downto 0);
+  mosi            : out std_logic;
+  miso            : in  std_logic;
+  sclk            : out std_logic
   );
 end Beam_Monitor;
 
@@ -103,28 +119,27 @@ architecture rtl of Beam_Monitor is
   signal tm_start_scan : std_logic;
   signal tm_reset_scan : std_logic;
 
-
   signal tm_marker_a : std_logic_vector(3 downto 0);
 
 
-  -- ad9252
-  signal ad9252_soft_rst        : std_logic;
-  signal ad9252_soft_path_rst   : std_logic;
-  signal ad9252_soft_pack_start : std_logic;
+  -- AD9252
+  signal data_soft_rst        : std_logic;
+  signal data_soft_path_rst   : std_logic;
+  signal data_soft_pack_start : std_logic;
 
-  signal ad9252_resync : std_logic;
-  signal ad_test_mode  : std_logic;
-  signal ad9252_busy   : std_logic;
+  signal data_resync    : std_logic;
+  signal device_rst     : std_logic;
+  signal ad9252_start   : std_logic;
+  signal pulse_ad       : std_logic;
+  signal ad9252_restart : std_logic;
 
-  -- ad9252 ipbus
-  signal device_rst    : std_logic;
-  signal ad9252_start  : std_logic;
-  signal pulse_ad      : std_logic;
-  signal ad9252_switch : std_logic_vector(2 downto 0);
-  signal data_aligned  : std_logic;
-  signal adc_restart   : std_logic;
 
-  signal resync : std_logic;
+  signal ad_test_mode : std_logic;
+
+  signal ad9252_busy : std_logic;
+  signal current_s   : std_logic_vector(4 downto 0);
+
+  signal data_aligned : std_logic;
 
   signal data_type : std_logic_vector(15 downto 0);
   signal time_high : std_logic_vector(15 downto 0);
@@ -135,11 +150,6 @@ architecture rtl of Beam_Monitor is
 
   signal dp_status    : std_logic_vector(8 downto 0);
   signal adc_dco_done : std_logic;
-
-  -- not used
-  signal current_s : std_logic_vector(4 downto 0);
-
-
 
   -- FIFOs
   signal data_fifo_rst                : std_logic;
@@ -163,15 +173,14 @@ architecture rtl of Beam_Monitor is
   -- constant
   constant ch          : std_logic_vector := X"FF";
   constant chip_number : std_logic_vector := X"0";
-  
-  constant N_SS: positive := 1;   -- Number of SPI Slaves
+
+  constant N_SS : positive := 1;        -- Number of SPI Slaves
 
 
   -- DEBUG
   attribute mark_debug : string;
 
-
-	signal adc_fclk: std_logic;
+  signal adc_fclk : std_logic;
 
   signal clk_div : std_logic_vector(N_CLK -1 downto 0);
 
@@ -189,30 +198,6 @@ begin
       I => tm_clk_o                     -- Buffer input 
       );
 
---  OBUF_RX_CLK : OBUF
---    generic map (
---      DRIVE      => 12,
---      IOSTANDARD => "DEFAULT",
---      SLEW       => "SLOW")
---    port map (
---      O => RX_FPGA,      -- Buffer output (connect directly to top-level port)
---      I => rx_fpga_tmp2                 -- Buffer input 
---      );
-
---  BUFGMUX_CTRL_inst : BUFGMUX_CTRL
---    port map (
---      O  => rx_fpga_tmp1,               -- 1-bit output: Clock output
---      I0 => clk_fpga,                   -- 1-bit input: Clock input (S=0)
---      I1 => clk_sys,                    -- 1-bit input: Clock input (S=1)
---      S  => sel_chip_clk                -- 1-bit input: Clock select
---      );
-
---  BUFGCE_inst : BUFGCE
---    port map (
---      O  => rx_fpga_tmp2,               -- 1-bit output: Clock output
---      CE => rx_fpga_oe,    -- 1-bit input: Clock enable input for I0
---      I  => rx_fpga_tmp1                -- 1-bit input: Primary clock
---      );
 
   IBUFDS_inst : IBUFDS
     generic map (
@@ -300,32 +285,39 @@ begin
       ipb_out => ipb_in,
 
       -- Chip system clock
-      clk => clk_100m,
-      rst => clk_100m_rst,
+      clk => tm_clk_o,
+      rst => clk_10m_rst,
 
       -- Global
       nuke     => nuke,
       soft_rst => soft_rst,
 
-
       -- twominus
       tm_start_scan => tm_start_scan,
       tm_reset_scan => tm_reset_scan,
 
-      -- ad9252
-      ad9252_soft_rst        => ad9252_soft_rst,
-      ad9252_soft_path_rst   => ad9252_soft_path_rst,
-      ad9252_soft_pack_start => ad9252_soft_pack_start,
-
-      ad9252_busy => ad9252_busy,
-
-      resync    => resync,
       data_type => data_type,
       time_high => time_high,
       time_mid  => time_mid,
       time_low  => time_low,
       time_usec => time_usec,
       chip_cnt  => chip_cnt,
+
+      data_resync => data_resync,
+      dp_status   => dp_status,
+
+      -- ad9252
+      data_soft_rst        => data_soft_rst,
+      data_soft_path_rst   => data_soft_path_rst,
+      data_soft_pack_start => data_soft_pack_start,
+
+      device_rst     => device_rst,
+      ad9252_start   => ad9252_start,
+      pulse_ad       => pulse_ad,
+      ad9252_restart => ad9252_restart,
+
+      ad9252_busy => ad9252_busy,
+      current_s   => current_s,
 
       -- FIFOs
       slow_ctrl_fifo_rd_clk        => '0',
@@ -348,49 +340,29 @@ begin
       mosi => mosi,
       miso => miso,
       sclk => sclk,
-      
+
       ad9512_function => ad9512_function,
 
 --      spi_trans_end => spi_trans_end,
-      
-		  -- FREQ CTR
-			clk_ctr_in => clk_div
+
+      -- FREQ CTR
+      clk_ctr_in => clk_div
 
       );
-      
---	AD9512_BUSY <= not AD9512_RDY;
---  ad9512_refresh : entity work.ad9512_refresh
---    port map(
---      clk => clk_200m,
---      rst => global_rst or clk_200m_rst,
 
---      din     => AD9512_DATA,
---      din_vld => AD9512_WE,
---      din_rdy => AD9512_RDY,
-
---      ad9512_sclk => ad9512_sclk,
---      ad9512_sdio => ad9512_sdio,
---      ad9512_csb  => ad9512_csb
---      );
 
   ad9252_control : entity work.ad9252_control
     port map(
-      reset            => device_rst,
-      start            => ad9252_start,
-      clk_spi          => clk_10m,
-      ch               => ch,
---      pulse_da         => '0',
-      pulse_ad         => pulse_ad,
-      adc_restart      => adc_restart,
---      dac_datain       => open,
-      switch           => ad9252_switch,
-      --adc_datain                                       => config_reg(47 downto 32],
-      data_aligned     => data_aligned,
-      ad_csb           => ad9252_csb,
---      da_sync          => da_sync,
---      da_sclk          => da_sclk,
---      da_done          => dac_done,
---      da_sdata         => da_sdata,
+      reset       => device_rst,
+      start       => ad9252_start,
+      clk_spi     => clk_10m,
+      ch          => ch,
+      pulse_ad    => pulse_ad,
+      adc_restart => ad9252_restart,
+
+      data_aligned => data_aligned,
+      ad_csb       => ad9252_csb,
+
       ad_sclk          => ad9252_sclk,
       ad_sdio          => ad9252_sdio,
       spi_9252_done    => ad_9252_done,
@@ -417,9 +389,9 @@ begin
 
       marker_a => tm_marker_a,
 
-      soft_rst        => ad9252_soft_rst,
-      soft_path_rst   => ad9252_soft_path_rst,
-      soft_pack_start => ad9252_soft_pack_start,
+      soft_rst        => data_soft_rst,
+      soft_path_rst   => data_soft_path_rst,
+      soft_pack_start => data_soft_pack_start,
 
       adc_data_p => adc_data_p,
       adc_data_n => adc_data_n,
@@ -434,7 +406,7 @@ begin
 --      ctrl_rd_clk  => ctrl_rd_clk,
 --      empty_ctrl   => empty_ctrl,
       chip_number  => chip_number,
-      resync       => ad9252_resync,
+      resync       => data_resync,
       data_type    => data_type,
       time_high    => time_high,
       time_mid     => time_mid,
@@ -455,7 +427,7 @@ begin
 --      data_fifo_full               => data_fifo_full,
 --      data_fifo_almost_full        => data_fifo_almost_full,
       data_fifo_wr_din => data_fifo_wr_din,
-      
+
       adc_fclk_o => adc_fclk
 
       );
@@ -463,7 +435,7 @@ begin
   adc_data_aligned <= data_aligned;
 
 
-	tm_clk_o <= clk_10m;
+  tm_clk_o <= clk_10m;
   twominus_scan : entity work.twominus_scan
     port map(
       clk        => tm_clk_o,
@@ -476,6 +448,7 @@ begin
       );
 
   topmetal_working <= tm_speak_o;
+  tm_speak         <= tm_speak_o;
 
 
   freq_div : entity work.freq_ctr_div

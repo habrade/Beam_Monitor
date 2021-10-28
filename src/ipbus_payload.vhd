@@ -1,3 +1,25 @@
+-------------------------------------------------------------------------------
+-- Title      : ipbus payload top
+-- Project    : 
+-------------------------------------------------------------------------------
+-- File       : ipbus_payload.vhd
+-- Author     : sdong  <sdong@sdong-ubuntu>
+-- Company    : 
+-- Created    : 2021-10-28
+-- Last update: 2021-10-28
+-- Platform   : 
+-- Standard   : VHDL'93/02
+-------------------------------------------------------------------------------
+-- Description: 
+-------------------------------------------------------------------------------
+-- Copyright (c) 2021 
+-------------------------------------------------------------------------------
+-- Revisions  :
+-- Date        Version  Author  Description
+-- 2021-10-28  1.0      sdong   Created
+-------------------------------------------------------------------------------
+
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use work.ipbus.all;
@@ -26,31 +48,36 @@ entity ipbus_payload is
     nuke     : out std_logic;
     soft_rst : out std_logic;
 
---    -- AD9512
---    AD9512_CLK      : in  std_logic;
---    AD9512_RST      : in  std_logic;
---    AD9512_BUSY     : in  std_logic;
---    AD9512_WE       : out std_logic;
---    ad9252_function : out std_logic;
---    AD9512_DATA     : out std_logic_vector(31 downto 0);
-
     -- Two minus
     tm_start_scan : out std_logic;
     tm_reset_scan : out std_logic;
 
-    ad9252_soft_rst        : out std_logic;
-    ad9252_soft_path_rst   : out std_logic;
-    ad9252_soft_pack_start : out std_logic;
-    ad9252_busy            : in  std_logic;
-
-
-    resync    : out std_logic;
     data_type : out std_logic_vector(15 downto 0);
     time_high : out std_logic_vector(15 downto 0);
     time_mid  : out std_logic_vector(15 downto 0);
     time_low  : out std_logic_vector(15 downto 0);
     time_usec : out std_logic_vector(31 downto 0);
     chip_cnt  : out std_logic_vector(15 downto 0);
+
+    data_resync : out std_logic;
+
+    dp_status : in std_logic_vector(8 downto 0);
+
+
+    -- AD9252
+    data_soft_rst        : out std_logic;
+    data_soft_path_rst   : out std_logic;
+    data_soft_pack_start : out std_logic;
+
+    device_rst      : out std_logic;
+    ad9252_start    : out std_logic;
+    ad9252_restart  : out std_logic;
+    pulse_ad        : out std_logic;
+    ad_test_mode    : out std_logic;
+
+    ad9252_busy : in std_logic;
+    current_s   :    std_logic_vector(4 downto 0);
+
 
     -- FIFO
     slow_ctrl_fifo_rd_clk        : in  std_logic;
@@ -75,13 +102,8 @@ entity ipbus_payload is
 
     ad9512_function : out std_logic;
 
---    spi_trans_end : out std_logic;
-
-
     -- FREQ CTR
     clk_ctr_in : in std_logic_vector(N_CLK-1 downto 0)
-
-    -- DEBUG
 
     );
 
@@ -95,7 +117,6 @@ architecture rtl of ipbus_payload is
 
   signal spi_rst : std_logic;           -- from ipbus control module
   signal rst_spi : std_logic;           -- to SPI module
---  signal spi_busy : std_logic;
 
   --Debug
   attribute mark_debug         : string;
@@ -142,8 +163,6 @@ begin
       ad9512_function => ad9512_function,
 
       spi_rst => spi_rst
---      spi_busy => spi_busy
-
       );
 
 
@@ -157,8 +176,6 @@ begin
       rst     => rst_spi,
       ipb_in  => ipbw(N_SLV_SPI),
       ipb_out => ipbr(N_SLV_SPI),
---      spi_busy      => spi_busy,
---      spi_trans_end => spi_trans_end,
       ss      => ss,
       mosi    => mosi,
       miso    => miso,
@@ -176,21 +193,17 @@ begin
       clk => clk,
       rst => rst,
 
---      spi_rst  => spi_rst,
---      spi_busy => spi_busy,
-
       -- Two minus
       start_scan => tm_start_scan,
       reset_scan => tm_reset_scan,
 
       -- ad9252
-      ad9252_soft_rst        => ad9252_soft_rst,
-      ad9252_soft_path_rst   => ad9252_soft_path_rst,
-      ad9252_soft_pack_start => ad9252_soft_pack_start,
+      data_soft_rst        => data_soft_rst,
+      data_soft_path_rst   => data_soft_path_rst,
+      data_soft_pack_start => data_soft_pack_start,
 
-      ad9252_busy => ad9252_busy,
+      data_resync => data_resync,
 
-      resync    => resync,
       data_type => data_type,
       time_high => time_high,
       time_mid  => time_mid,
@@ -198,7 +211,7 @@ begin
       time_usec => time_usec,
       chip_cnt  => chip_cnt,
 
-
+      dp_status => dp_status,
 
       --FIFO
       slow_ctrl_fifo_rd_clk        => slow_ctrl_fifo_rd_clk,
@@ -227,6 +240,25 @@ begin
       ipb_in  => ipbw(N_SLV_FREQ_CTR),
       ipb_out => ipbr(N_SLV_FREQ_CTR),
       clkdiv  => clk_ctr_in
+      );
+
+  slave5 : entity work.ipbus_ad9252_device
+    port map(
+      ipb_clk => ipb_clk,
+      ipb_rst => ipb_rst,
+      ipb_in  => ipbw(N_SLV_AD9252),
+      ipb_out => ipbr(N_SLV_AD9252),
+
+      clk => clk,  -- 10 MHz
+      rst => rst,
+
+      device_rst      => device_rst,
+      ad9252_start    => ad9252_start,
+      pulse_ad        => pulse_ad,
+      ad9252_restart  => ad9252_restart,
+
+      ad9252_busy => ad9252_busy,
+      current_s   => current_s
       );
 
 

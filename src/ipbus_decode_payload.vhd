@@ -23,7 +23,8 @@ package ipbus_decode_payload is
   constant N_SLV_SPI      : integer := 2;
   constant N_SLV_TWOMINUS : integer := 3;
   constant N_SLV_FREQ_CTR : integer := 4;
-  constant N_SLAVES       : integer := 5;
+  constant N_SLV_AD9252   : integer := 5;
+  constant N_SLAVES       : integer := 6;
 -- END automatically generated VHDL
 
 
@@ -45,6 +46,8 @@ package body ipbus_decode_payload is
       sel := ipbus_sel_t(to_unsigned(N_SLV_TWOMINUS, IPBUS_SEL_WIDTH));
 		elsif std_match(addr, "100-----------------------------") then
       sel := ipbus_sel_t(to_unsigned(N_SLV_FREQ_CTR, IPBUS_SEL_WIDTH));
+		elsif std_match(addr, "101-----------------------------") then
+      sel := ipbus_sel_t(to_unsigned(N_SLV_AD9252, IPBUS_SEL_WIDTH));
     else
       sel := ipbus_sel_t(to_unsigned(N_SLAVES, IPBUS_SEL_WIDTH));
     end if;
