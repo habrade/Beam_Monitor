@@ -119,6 +119,8 @@ set_property PACKAGE_PIN C19 [get_ports {dip_sw[0]}]
 set_property PACKAGE_PIN B19 [get_ports {dip_sw[1]}]
 set_property PACKAGE_PIN C17 [get_ports {dip_sw[2]}]
 set_property PACKAGE_PIN C18 [get_ports {dip_sw[3]}]
+false_path {dip_sw[*]} system_clock
+
 
 set_property PACKAGE_PIN H16 [get_ports adc_data_aligned]
 set_property PACKAGE_PIN D16 [get_ports ad_9252_done]
@@ -129,6 +131,8 @@ set_property PACKAGE_PIN F19 [get_ports topmetal_working]
 set_property PACKAGE_PIN G20 [get_ports {leds[0]}]
 set_property PACKAGE_PIN K20 [get_ports {leds[1]}]
 set_property PACKAGE_PIN J19 [get_ports {leds[2]}]
+false_path {leds[*]} system_clock
+
 
 
 #set_property IOSTANDARD LVCMOS25 [get_ports {rgmii_rxd[3]}]

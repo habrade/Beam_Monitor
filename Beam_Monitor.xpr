@@ -665,6 +665,13 @@
           <Attr Name="UsedIn" Val="implementation"/>
         </FileInfo>
       </File>
+      <File Path="$PPRDIR/constrains/clocks_utils.tcl">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
       <Config>
         <Option Name="TargetConstrsFile" Val="$PPRDIR/constrains/debug.xdc"/>
         <Option Name="ConstrsType" Val="XDC"/>

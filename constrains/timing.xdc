@@ -1,6 +1,9 @@
 # -------------timming constraint for GBE ---------------------------------------------------s
 # 200MHZ system clk
 create_clock -period 5.000 -name system_clock [get_ports sysclk_p]
+
+set_false_path -through [get_pins ipbus_infra/clocks/rst_reg/Q]
+set_false_path -through [get_nets ipbus_infra/clocks/nuke_i]
 #create_clock -period 5.000 -name system_clock [get_ports exclk_p]
 # 125MHz GBE clk
 #create_clock -period 8.000 -name sgmii_clock [get_ports sgmiiclk_q0_p]

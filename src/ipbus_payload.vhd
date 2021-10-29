@@ -76,7 +76,7 @@ entity ipbus_payload is
     ad_test_mode    : out std_logic;
 
     ad9252_busy : in std_logic;
-    current_s   :    std_logic_vector(4 downto 0);
+    current_s   :   in  std_logic_vector(4 downto 0);
 
 
     -- FIFO

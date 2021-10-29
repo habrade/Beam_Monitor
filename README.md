@@ -2,9 +2,9 @@
 
 ### Environment
 The readout system is developed and tested on:
-* Ubuntu 20.04 LTS, Debian 10
-* Xilinx Vivado 2020.2
-* Python 3.7.3 or higher
+* Ubuntu 20.04 LTS
+* Xilinx Vivado 2021.1
+* Python 3.8 or higher
 * IPbus Software: main branch
 * IPbus Firmware: main branch
 
