@@ -28,5 +28,5 @@ else
     cp ${LTX} ${BUILD_DIR}
 fi
 
-. /opt/Xilinx/Vivado/2021.1/settings64.sh
+. /home/cee/Xilinx/Vivado/2021.2/settings64.sh
 vivado -nolog -nojournal -mode tcl -source ./gen_mcs.tcl -tclargs "$PRJ_NAME" "$BUILD_DIR" "$BIT"

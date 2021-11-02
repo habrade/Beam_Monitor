@@ -59,7 +59,7 @@ module ad9252_wrap #
 	wire 					adc_dco;	
 	wire 					adc_fco;
 	wire 					adc_dco_clk;
-	wire [ADC_CHANEL-1:0]	adc_data_buf;
+	(*mark_debug = "true"*) wire [ADC_CHANEL-1:0]	adc_data_buf;
 	wire 					rst_dco;
 	wire 					rst_dco_fc;
 

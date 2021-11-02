@@ -6,7 +6,7 @@
 -- Author     : sdong  <sdong@sdong-ubuntu>
 -- Company    : 
 -- Created    : 2021-10-28
--- Last update: 2021-10-28
+-- Last update: 2021-11-01
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -69,14 +69,14 @@ entity ipbus_payload is
     data_soft_path_rst   : out std_logic;
     data_soft_pack_start : out std_logic;
 
-    device_rst      : out std_logic;
-    ad9252_start    : out std_logic;
-    ad9252_restart  : out std_logic;
-    pulse_ad        : out std_logic;
-    ad_test_mode    : out std_logic;
+    device_rst     : out std_logic;
+    ad9252_start   : out std_logic;
+    ad9252_restart : out std_logic;
+    pulse_ad       : out std_logic;
+    ad_test_mode   : out std_logic;
 
     ad9252_busy : in std_logic;
-    current_s   :   in  std_logic_vector(4 downto 0);
+    current_s   : in std_logic_vector(4 downto 0);
 
 
     -- FIFO
@@ -124,6 +124,13 @@ architecture rtl of ipbus_payload is
   attribute mark_debug of mosi : signal is "true";
   attribute mark_debug of miso : signal is "true";
   attribute mark_debug of sclk : signal is "true";
+
+  attribute mark_debug of data_fifo_rst         : signal is "true";
+  attribute mark_debug of data_fifo_wr_clk      : signal is "true";
+  attribute mark_debug of data_fifo_wr_en       : signal is "true";
+  attribute mark_debug of data_fifo_wr_din      : signal is "true";
+  attribute mark_debug of data_fifo_full        : signal is "true";
+  attribute mark_debug of data_fifo_almost_full : signal is "true";
 
 begin
 
@@ -249,13 +256,13 @@ begin
       ipb_in  => ipbw(N_SLV_AD9252),
       ipb_out => ipbr(N_SLV_AD9252),
 
-      clk => clk,  -- 10 MHz
+      clk => clk,                       -- 10 MHz
       rst => rst,
 
-      device_rst      => device_rst,
-      ad9252_start    => ad9252_start,
-      pulse_ad        => pulse_ad,
-      ad9252_restart  => ad9252_restart,
+      device_rst     => device_rst,
+      ad9252_start   => ad9252_start,
+      pulse_ad       => pulse_ad,
+      ad9252_restart => ad9252_restart,
 
       ad9252_busy => ad9252_busy,
       current_s   => current_s

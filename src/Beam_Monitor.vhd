@@ -424,7 +424,7 @@ begin
       data_fifo_rst    => data_fifo_rst,
       data_fifo_wr_clk => data_fifo_wr_clk,
       data_fifo_wr_en  => data_fifo_wr_en,
---      data_fifo_full               => data_fifo_full,
+      final_data_fifo_full               => data_fifo_full,
 --      data_fifo_almost_full        => data_fifo_almost_full,
       data_fifo_wr_din => data_fifo_wr_din,
 

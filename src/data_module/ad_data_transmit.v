@@ -62,7 +62,7 @@ module ad_data_module #
    output data_fifo_wr_clk   ,  
   output  data_fifo_wr_en ,     
    output [31:0] data_fifo_wr_din,     
-//  input  final_data_fifo_full     ,   
+  input  final_data_fifo_full     ,   
 //  input  data_fifo_almost_full 
 //	output [31:0] 			data_bus
 	// DEBUG
@@ -100,6 +100,9 @@ module ad_data_module #
 	//wire [13:0] 				pattern_fco;
 	wire [8:0] 					d_status[ADC_CHANEL-1:0];
 	wire [31:0] 				frame_num[ADC_CHANEL-1:0];
+	
+	wire  data_fifo_wr_en_o;  
+
 	
 	// DEBUG
 	assign adc_fclk_o = adc_fclk;
@@ -281,13 +284,15 @@ module ad_data_module #
 		.data_in				(data_out), 			// data from FIFO
 		.fifo_empty				(empty_flag), 			// front FIFO empty signal
 		.fifo_rden				(fifo_rden), 			// front FIFO read enable
-		.fifo_wren 				(data_fifo_wr_en),
+		.fifo_wren 				(data_fifo_wr_en_o),
 		.data_out				(data_fifo_wr_din)
 	);
 	
 	assign data_fifo_wr_clk = clk_100m;
 	assign data_fifo_rst = reset | soft_path_rst;
-
+	
+	assign data_fifo_wr_en = data_fifo_wr_en_o && (~ final_data_fifo_full);
+//	assign data_fifo_wr_din = data_fifo_wr_din_o 
 //	fifo_32x128 ctrl_data_buf
 //	(
 //		.wr_clk 				(clk_100m),
