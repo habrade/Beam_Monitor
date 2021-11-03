@@ -37,3 +37,8 @@ LED11 (D11) -> not used
 
 LED12 (D12) -> not used
 
+
+2. FPGA Flash part
+
+mt25ql128-spi-x1\_x2\_x4
+
