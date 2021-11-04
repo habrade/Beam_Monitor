@@ -47,11 +47,11 @@ module config_9252(
 						UPDATE_W 	= 9,
 						DONE 		= 10;
 
-	reg [4:0] 			current_state;
-	reg [4:0] 			next_state;
+	(*mark_debug = "true"*)  reg [4:0] 			current_state;
+	(*mark_debug = "true"*)  reg [4:0] 			next_state;
 	reg [23:0] 			delay_cnt;
-	reg 				cfg_testdone;
-	reg 				cfg_workdone;
+	(*mark_debug = "true"*)  reg 				cfg_testdone;
+	(*mark_debug = "true"*)  reg 				cfg_workdone;
 	assign state_9 = current_state;
 	always @(posedge clk or posedge reset) 
 	begin : proc_current

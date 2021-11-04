@@ -6,7 +6,7 @@
 -- Author     : sdong  <sdong@sdong-ubuntu>
 -- Company    : 
 -- Created    : 2021-10-28
--- Last update: 2021-10-28
+-- Last update: 2021-11-03
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -165,6 +165,7 @@ architecture rtl of Beam_Monitor is
   signal data_fifo_full               : std_logic;
   signal data_fifo_almost_full        : std_logic;
 
+
   -- Readout
 
   -- SPI 
@@ -183,6 +184,8 @@ architecture rtl of Beam_Monitor is
   signal adc_fclk : std_logic;
 
   signal clk_div : std_logic_vector(N_CLK -1 downto 0);
+
+  signal data_lost_counter : std_logic_vector(31 downto 0);
 
 
 begin
@@ -286,7 +289,7 @@ begin
 
       -- Chip system clock
       clk => tm_clk_o,
-      rst => clk_10m_rst,
+      rst => clk_200m_rst,
 
       -- Global
       nuke     => nuke,
@@ -334,6 +337,8 @@ begin
       data_fifo_full        => data_fifo_full,
       data_fifo_almost_full => data_fifo_almost_full,
       data_fifo_wr_din      => data_fifo_wr_din,
+
+      data_lost_counter => data_lost_counter,
 
       -- ipbus SPI master
       ss   => ss,
@@ -421,21 +426,23 @@ begin
       data_aligned => data_aligned,
 --      data_bus     => adc_data_bus
 
-      data_fifo_rst    => data_fifo_rst,
-      data_fifo_wr_clk => data_fifo_wr_clk,
-      data_fifo_wr_en  => data_fifo_wr_en,
-      final_data_fifo_full               => data_fifo_full,
+      data_fifo_rst        => data_fifo_rst,
+      data_fifo_wr_clk     => data_fifo_wr_clk,
+      data_fifo_wr_en      => data_fifo_wr_en,
+      final_data_fifo_full => data_fifo_full,
 --      data_fifo_almost_full        => data_fifo_almost_full,
-      data_fifo_wr_din => data_fifo_wr_din,
+      data_fifo_wr_din     => data_fifo_wr_din,
 
-      adc_fclk_o => adc_fclk
+      adc_fclk_o => adc_fclk,
+
+      data_lost_counter => data_lost_counter
 
       );
 
   adc_data_aligned <= data_aligned;
 
 
-  tm_clk_o <= clk_10m;
+--  tm_clk_o <= clk_10m;
   twominus_scan : entity work.twominus_scan
     port map(
       clk        => tm_clk_o,
@@ -460,5 +467,12 @@ begin
       clkdiv => clk_div
       );
 
+
+  gen_test_clocks : entity work.gen_test_clocks
+    port map(
+      clk    => clk_200m,
+      rst    => clk_200m_rst,
+      clkout => tm_clk_o
+      );
 
 end rtl;

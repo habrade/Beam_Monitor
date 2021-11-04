@@ -72,7 +72,7 @@ begin
       CLKIN1_PERIOD      => 1000.0 / CLK_FR_FREQ,  -- Input clock period in ns to ps resolution (i.e. 33.333 is 30 MHz).
       -- CLKOUT0_DIVIDE - CLKOUT6_DIVIDE: Divide amount for each CLKOUT (1-128)
       CLKOUT1_DIVIDE     => integer(CLK_VCO_FREQ / (1000.0 / 10)),  -- Divide amount for CLKOUT1 (1.000-128.000).
-      CLKOUT2_DIVIDE     => integer(CLK_VCO_FREQ / (1000.0 / 100)),  -- Divide amount for CLKOUT2 (1.000-128.000).
+      CLKOUT2_DIVIDE     => integer(CLK_VCO_FREQ / (1000.0 / 80)),  -- Divide amount for CLKOUT2 (1.000-128.000).
       CLKOUT3_DIVIDE     => integer(CLK_VCO_FREQ / (1000.0 / 5)),  -- Divide amount for CLKOUT2 (1.000-128.000).
       CLKOUT0_DIVIDE_F   => CLK_VCO_FREQ / (1000.0 / 20),  -- Divide amount for CLKOUT0 (1.000-128.000).
       -- CLKOUT0_DUTY_CYCLE - CLKOUT6_DUTY_CYCLE: Duty cycle for each CLKOUT (0.01-0.99).

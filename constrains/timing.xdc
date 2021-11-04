@@ -59,6 +59,8 @@ create_generated_clock -name ipbus_clk -source [get_pins ipbus_infra/clocks/mmcm
 # Other derived clocks
 create_generated_clock -name clk_aux -source [get_pins ipbus_infra/clocks/mmcm/CLKIN1] [get_pins ipbus_infra/clocks/mmcm/CLKOUT4]
 
+create_generated_clock -name tm_clk_o -source  [get_pins twominus_clocks/mmcm/CLKIN1]  [get_pins gen_test_clocks/tm_clk_o]
+
 # AD9512 Clock
 #create_generated_clock -name ad9512_sclk -source [get_pins twominus_clocks/mmcm/CLKOUT3] [get_pins ad9512_refresh/spi_master_i/ad9512_sclk_OBUF]
 

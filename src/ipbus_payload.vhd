@@ -93,6 +93,8 @@ entity ipbus_payload is
     data_fifo_wr_din             : in  std_logic_vector(31 downto 0);
     data_fifo_full               : out std_logic;
     data_fifo_almost_full        : out std_logic;
+    
+    data_lost_counter : in  std_logic_vector(31 downto 0);
 
     -- SPI Master
     ss   : out std_logic_vector(N_SS - 1 downto 0);
@@ -233,7 +235,9 @@ begin
       data_fifo_wr_en              => data_fifo_wr_en,
       data_fifo_full               => data_fifo_full,
       data_fifo_almost_full        => data_fifo_almost_full,
-      data_fifo_wr_din             => data_fifo_wr_din
+      data_fifo_wr_din             => data_fifo_wr_din,
+      
+      data_lost_counter => data_lost_counter
       );
 
 

@@ -51,8 +51,8 @@ entity ipbus_ad9252_device is
     pulse_ad       : out std_logic;
     ad_test_mode   : out std_logic;
 
-    ad9252_busy : std_logic;
-    current_s   : std_logic_vector(4 downto 0)
+    ad9252_busy : in std_logic;
+    current_s   : in std_logic_vector(4 downto 0)
 
     );
 end ipbus_ad9252_device;

@@ -80,14 +80,16 @@ entity ipbus_twominus_device is
     data_fifo_wr_en              : in  std_logic;
     data_fifo_wr_din             : in  std_logic_vector(31 downto 0);
     data_fifo_full               : out std_logic;
-    data_fifo_almost_full        : out std_logic
+    data_fifo_almost_full        : out std_logic;
+    
+    data_lost_counter : in std_logic_vector(31 downto 0)
     );
 end ipbus_twominus_device;
 
 architecture behv of ipbus_twominus_device is
   -- IPbus reg
   constant SYNC_REG_ENA               : boolean := false;
-  constant N_STAT                     : integer := 1;
+  constant N_STAT                     : integer := 2;
   constant N_CTRL                     : integer := 5;
   constant N_WFIFO                    : integer := 0;
   constant N_RFIFO                    : integer := 1;
@@ -242,6 +244,8 @@ begin
   begin
     if rising_edge(clk) then
       stat(0)(8 downto 0) <= dp_status;
+      
+      stat(1) <= data_lost_counter;
 
     end if;
   end process;

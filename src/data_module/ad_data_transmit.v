@@ -66,7 +66,9 @@ module ad_data_module #
 //  input  data_fifo_almost_full 
 //	output [31:0] 			data_bus
 	// DEBUG
-	output adc_fclk_o
+	output adc_fclk_o,
+	
+	output reg [31:0] data_lost_counter 
 
 );
 
@@ -291,7 +293,22 @@ module ad_data_module #
 	assign data_fifo_wr_clk = clk_100m;
 	assign data_fifo_rst = reset | soft_path_rst;
 	
-	assign data_fifo_wr_en = data_fifo_wr_en_o && (~ final_data_fifo_full);
+//	assign data_fifo_wr_en = data_fifo_wr_en_o && (~ final_data_fifo_full) && ad_test_mode;
+	assign data_fifo_wr_en = data_fifo_wr_en_o && ad_test_mode;
+	
+	
+	always @(posedge data_fifo_wr_clk)
+	begin
+	   if (data_fifo_rst) begin
+	       data_lost_counter <= 0;
+	   end
+	   else if (data_fifo_wr_en_o && final_data_fifo_full)
+	   begin
+	       if (data_lost_counter < 32'hffffffff) begin
+	           data_lost_counter <= data_lost_counter + 1;
+	       end
+	   end
+	end
 //	assign data_fifo_wr_din = data_fifo_wr_din_o 
 //	fifo_32x128 ctrl_data_buf
 //	(
