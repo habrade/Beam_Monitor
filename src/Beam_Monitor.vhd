@@ -6,7 +6,7 @@
 -- Author     : sdong  <sdong@sdong-ubuntu>
 -- Company    : 
 -- Created    : 2021-10-28
--- Last update: 2021-11-03
+-- Last update: 2021-11-05
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -313,10 +313,16 @@ begin
       data_soft_path_rst   => data_soft_path_rst,
       data_soft_pack_start => data_soft_pack_start,
 
-      device_rst     => device_rst,
-      ad9252_start   => ad9252_start,
-      pulse_ad       => open,
-      ad9252_restart => ad9252_restart,
+
+      ad9252_sclk => ad9252_sclk,
+      ad9252_sdio => ad9252_sdio,
+      ad9252_csb  => ad9252_csb,
+
+
+--      device_rst     => device_rst,
+--      ad9252_start   => ad9252_start,
+--      pulse_ad       => open,
+--      ad9252_restart => ad9252_restart,
 
       ad9252_busy => ad9252_busy,
       current_s   => current_s,
@@ -355,26 +361,26 @@ begin
       );
 
 
-  ad9252_control : entity work.ad9252_control
-    port map(
-      reset       => device_rst or global_rst or soft_rst,
-      start       => ad9252_start,
-      clk_spi     => clk_10m,
-      ch          => ch,
-      adc_restart => ad9252_restart,
+--  ad9252_control : entity work.ad9252_control
+--    port map(
+--      reset       => device_rst or global_rst or soft_rst,
+--      start       => ad9252_start,
+--      clk_spi     => clk_10m,
+--      ch          => ch,
+--      adc_restart => ad9252_restart,
 
-      data_aligned => data_aligned,
-      ad_csb       => ad9252_csb,
+--      data_aligned => data_aligned,
+--      ad_csb       => ad9252_csb,
 
-      ad_sclk          => ad9252_sclk,
-      ad_sdio          => ad9252_sdio,
-      spi_9252_done    => ad_9252_done,
-      ad_test_cfg_done => ad_test_mode,
+--      ad_sclk          => ad9252_sclk,
+--      ad_sdio          => ad9252_sdio,
+--      spi_9252_done    => ad_9252_done,
+--      ad_test_cfg_done => ad_test_mode,
 
-      state_9_1 => current_s,
+--      state_9_1 => current_s,
 
-      busy_9252 => ad9252_busy
-      );
+--      busy_9252 => ad9252_busy
+--      );
 
 
   tm_marker_a <= (tm_marker & tm_marker & tm_marker & tm_marker);

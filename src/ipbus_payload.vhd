@@ -6,7 +6,7 @@
 -- Author     : sdong  <sdong@sdong-ubuntu>
 -- Company    : 
 -- Created    : 2021-10-28
--- Last update: 2021-11-01
+-- Last update: 2021-11-05
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -69,11 +69,16 @@ entity ipbus_payload is
     data_soft_path_rst   : out std_logic;
     data_soft_pack_start : out std_logic;
 
-    device_rst     : out std_logic;
-    ad9252_start   : out std_logic;
-    ad9252_restart : out std_logic;
-    pulse_ad       : out std_logic;
-    ad_test_mode   : out std_logic;
+    ad9252_sclk : out std_logic;
+    ad9252_sdio : out std_logic;
+    ad9252_csb  : out std_logic;
+
+
+--    device_rst     : out std_logic;
+--    ad9252_start   : out std_logic;
+--    ad9252_restart : out std_logic;
+--    pulse_ad       : out std_logic;
+--    ad_test_mode   : out std_logic;
 
     ad9252_busy : in std_logic;
     current_s   : in std_logic_vector(4 downto 0);
@@ -93,8 +98,8 @@ entity ipbus_payload is
     data_fifo_wr_din             : in  std_logic_vector(31 downto 0);
     data_fifo_full               : out std_logic;
     data_fifo_almost_full        : out std_logic;
-    
-    data_lost_counter : in  std_logic_vector(31 downto 0);
+
+    data_lost_counter : in std_logic_vector(31 downto 0);
 
     -- SPI Master
     ss   : out std_logic_vector(N_SS - 1 downto 0);
@@ -119,6 +124,8 @@ architecture rtl of ipbus_payload is
 
   signal spi_rst : std_logic;           -- from ipbus control module
   signal rst_spi : std_logic;           -- to SPI module
+
+  signal ss2 : std_logic_vector(N_SS2 -1 downto 0);
 
   --Debug
   attribute mark_debug         : string;
@@ -170,8 +177,7 @@ begin
       rst => ipb_rst,
 
       ad9512_function => ad9512_function,
-
-      spi_rst => spi_rst
+      spi_rst         => spi_rst
       );
 
 
@@ -236,7 +242,7 @@ begin
       data_fifo_full               => data_fifo_full,
       data_fifo_almost_full        => data_fifo_almost_full,
       data_fifo_wr_din             => data_fifo_wr_din,
-      
+
       data_lost_counter => data_lost_counter
       );
 
@@ -253,24 +259,42 @@ begin
       clkdiv  => clk_ctr_in
       );
 
-  slave5 : entity work.ipbus_ad9252_device
+--  slave5 : entity work.ipbus_ad9252_device
+--    port map(
+--      ipb_clk => ipb_clk,
+--      ipb_rst => ipb_rst,
+--      ipb_in  => ipbw(N_SLV_AD9252),
+--      ipb_out => ipbr(N_SLV_AD9252),
+
+--      clk => clk,                       -- 10 MHz
+--      rst => rst,
+
+----      device_rst     => device_rst,
+----      ad9252_start   => ad9252_start,
+----      pulse_ad       => pulse_ad,
+----      ad9252_restart => ad9252_restart,
+
+--      ad9252_busy => ad9252_busy,
+--      current_s   => current_s
+--      );
+
+
+--  rst_spi <= spi_rst or ipb_rst;
+  slave5 : entity work.ipbus_spi
+    generic map(
+      N_SS => N_SS
+      )
     port map(
-      ipb_clk => ipb_clk,
-      ipb_rst => ipb_rst,
+      clk     => ipb_clk,
+      rst     => ipb_rst,
       ipb_in  => ipbw(N_SLV_AD9252),
       ipb_out => ipbr(N_SLV_AD9252),
-
-      clk => clk,                       -- 10 MHz
-      rst => rst,
-
-      device_rst     => device_rst,
-      ad9252_start   => ad9252_start,
-      pulse_ad       => pulse_ad,
-      ad9252_restart => ad9252_restart,
-
-      ad9252_busy => ad9252_busy,
-      current_s   => current_s
+      ss      => ss2,
+      mosi    => ad9252_sdio,
+      miso    => miso,
+      sclk    => ad9252_sclk
       );
+  ad9252_csb <= ss2(0);
 
 
 end rtl;

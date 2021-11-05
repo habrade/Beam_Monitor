@@ -6,7 +6,7 @@
 -- Author     : sdong  <sdong@sdong-ubuntu>
 -- Company    : 
 -- Created    : 2021-10-21
--- Last update: 2021-10-22
+-- Last update: 2021-11-05
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -44,11 +44,9 @@ entity ipbus_ad9512_device is
 
     clk : in std_logic;
     rst : in std_logic;
-    
-    ad9512_function : out std_logic;
 
---    spi_busy : in  std_logic;
-    spi_rst: out std_logic
+    ad9512_function : out std_logic;
+    spi_rst         : out std_logic
 
     );
 end ipbus_ad9512_device;
@@ -56,23 +54,23 @@ end ipbus_ad9512_device;
 
 
 architecture behv of ipbus_ad9512_device is
-  constant N_STAT       : integer := 1;
+  constant N_STAT       : integer := 0;
   constant N_CTRL       : integer := 1;
   constant SYNC_REG_ENA : boolean := false;
 
   constant REG_NSLV : integer  := reg_slave_num(N_STAT, N_CTRL);
   constant NSLV     : positive := REG_NSLV;
 
-  signal stat         : ipb_reg_v(N_STAT-1 downto 0);
-  signal ctrl         : ipb_reg_v(N_CTRL-1 downto 0);
+  signal stat : ipb_reg_v(N_STAT-1 downto 0);
+  signal ctrl : ipb_reg_v(N_CTRL-1 downto 0);
 
   signal ctrl_reg_stb, ctrl_reg_stb_r : std_logic_vector(N_CTRL-1 downto 0);
   signal stat_reg_stb, stat_reg_stb_r : std_logic_vector(N_STAT-1 downto 0);
 
   signal rst_r : std_logic;
-  
+
   signal ad9512_function_tmp : std_logic;
-  signal spi_rst_tmp : std_logic;
+  signal spi_rst_tmp         : std_logic;
 
 begin
 
@@ -122,11 +120,11 @@ begin
   process(clk)
   begin
     if rising_edge(clk) then
-      spi_rst_tmp   <= ctrl(0)(0);
-      ad9512_function_tmp   <= ctrl(0)(1);
-      
-			ctrl_reg_stb_r <= ctrl_reg_stb;
-			stat_reg_stb_r <= stat_reg_stb;
+      spi_rst_tmp         <= ctrl(0)(0);
+      ad9512_function_tmp <= ctrl(0)(1);
+
+      ctrl_reg_stb_r <= ctrl_reg_stb;
+      stat_reg_stb_r <= stat_reg_stb;
     end if;
   end process;
 
@@ -136,21 +134,21 @@ begin
     if rising_edge(clk) then
 
       if ?? ctrl_reg_stb_r(0) then
-        spi_rst <= spi_rst_tmp;
+        spi_rst         <= spi_rst_tmp;
         ad9512_function <= ad9512_function_tmp;
       else
-        spi_rst <= '0';
+        spi_rst         <= '0';
         ad9512_function <= '1';
       end if;
     end if;
   end process;
 
-  process(clk)
-  begin
-    if rising_edge(clk) then
-      stat(0)(0) <= '0';
-    end if;
-  end process;
+--  process(clk)
+--  begin
+--    if rising_edge(clk) then
+--      stat(0)(0) <= '0';
+--    end if;
+--  end process;
 
 
 end behv;

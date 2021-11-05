@@ -20,7 +20,7 @@
 
 
 library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_1164.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -33,7 +33,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 
 package GLOBAL_DEFINES is
-  
-  constant N_CLK: positive := 3;   -- Number of CLK_DIV Slaves
+
+  constant N_CLK : positive := 3;       -- Number of CLK_DIV Slaves
+  constant N_SS  : positive := 1;
+  constant N_SS2 : positive := 1;
+
 
 end GLOBAL_DEFINES;
