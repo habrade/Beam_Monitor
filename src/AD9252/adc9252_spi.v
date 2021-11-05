@@ -25,7 +25,6 @@ module adc9252_spi(
 	input wire			reset,
 	input wire 			start,
 	input wire 			data_aligned,
-	input wire          pulse_ad,
 	//input [15:0]		adc_data,
 	output wire 		test_cfg_done,
 	output wire 		sclk_adc,

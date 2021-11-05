@@ -53,7 +53,7 @@ module config_9252(
 	(*mark_debug = "true"*)  reg 				cfg_testdone;
 	(*mark_debug = "true"*)  reg 				cfg_workdone;
 	assign state_9 = current_state;
-	always @(posedge clk or posedge reset) 
+	always @(posedge clk) 
 	begin : proc_current
 		if(reset) begin
 			current_state <= IDLE;

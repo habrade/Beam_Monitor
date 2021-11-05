@@ -130,7 +130,6 @@ architecture rtl of Beam_Monitor is
   signal data_resync    : std_logic;
   signal device_rst     : std_logic;
   signal ad9252_start   : std_logic;
-  signal pulse_ad       : std_logic;
   signal ad9252_restart : std_logic;
 
 
@@ -316,7 +315,7 @@ begin
 
       device_rst     => device_rst,
       ad9252_start   => ad9252_start,
-      pulse_ad       => pulse_ad,
+      pulse_ad       => open,
       ad9252_restart => ad9252_restart,
 
       ad9252_busy => ad9252_busy,
@@ -358,11 +357,10 @@ begin
 
   ad9252_control : entity work.ad9252_control
     port map(
-      reset       => device_rst,
+      reset       => device_rst or global_rst or soft_rst,
       start       => ad9252_start,
       clk_spi     => clk_10m,
       ch          => ch,
-      pulse_ad    => pulse_ad,
       adc_restart => ad9252_restart,
 
       data_aligned => data_aligned,
@@ -390,7 +388,7 @@ begin
       clk_200m => clk_200m,
       clk_100m => clk_100m,
       clk_10m  => clk_10m,
-      reset    => global_rst,
+      reset    => global_rst or soft_rst,
 
       marker_a => tm_marker_a,
 
@@ -446,7 +444,7 @@ begin
   twominus_scan : entity work.twominus_scan
     port map(
       clk        => tm_clk_o,
-      rst        => global_rst,
+      rst        => global_rst or soft_rst,
       start_scan => tm_start_scan,
       reset_scan => tm_reset_scan,
       speak      => tm_speak_o,
