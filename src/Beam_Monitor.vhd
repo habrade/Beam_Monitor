@@ -6,7 +6,7 @@
 -- Author     : sdong  <sdong@sdong-ubuntu>
 -- Company    : 
 -- Created    : 2021-10-28
--- Last update: 2021-10-28
+-- Last update: 2021-11-06
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -115,6 +115,7 @@ architecture rtl of Beam_Monitor is
 
   -- Two minus
   signal tm_clk_o      : std_logic;
+  signal tm_clk_en     : std_logic;
   signal tm_speak_o    : std_logic;
   signal tm_start_scan : std_logic;
   signal tm_reset_scan : std_logic;
@@ -285,8 +286,10 @@ begin
       ipb_out => ipb_in,
 
       -- Chip system clock
-      clk => tm_clk_o,
-      rst => clk_10m_rst,
+      clk     => tm_clk_o,
+      clk_10m => clk_10m,
+      rst     => clk_10m_rst or global_rst or hard_reset,
+      rst_10m => clk_10m_rst,
 
       -- Global
       nuke     => nuke,
@@ -421,12 +424,12 @@ begin
       data_aligned => data_aligned,
 --      data_bus     => adc_data_bus
 
-      data_fifo_rst    => data_fifo_rst,
-      data_fifo_wr_clk => data_fifo_wr_clk,
-      data_fifo_wr_en  => data_fifo_wr_en,
-      final_data_fifo_full               => data_fifo_full,
+      data_fifo_rst        => data_fifo_rst,
+      data_fifo_wr_clk     => data_fifo_wr_clk,
+      data_fifo_wr_en      => data_fifo_wr_en,
+      final_data_fifo_full => data_fifo_full,
 --      data_fifo_almost_full        => data_fifo_almost_full,
-      data_fifo_wr_din => data_fifo_wr_din,
+      data_fifo_wr_din     => data_fifo_wr_din,
 
       adc_fclk_o => adc_fclk
 
@@ -435,11 +438,10 @@ begin
   adc_data_aligned <= data_aligned;
 
 
-  tm_clk_o <= clk_10m;
   twominus_scan : entity work.twominus_scan
     port map(
       clk        => tm_clk_o,
-      rst        => global_rst,
+      rst        => global_rst or clk_10m_rst or hard_reset,
       start_scan => tm_start_scan,
       reset_scan => tm_reset_scan,
       speak      => tm_speak_o,
@@ -449,6 +451,21 @@ begin
 
   topmetal_working <= tm_speak_o;
   tm_speak         <= tm_speak_o;
+
+
+  gen_test_clocks : entity work.gen_test_clocks
+    port map(
+      clk       => clk_10m,
+      rst       => clk_10m_rst or global_rst or hard_reset,
+      clkout_en => tm_clk_en
+      );
+
+  BUFGCE_inst : BUFGCE
+    port map (
+      O  => tm_clk_o,                   -- 1-bit output: Clock output
+      CE => tm_clk_en,  -- 1-bit input: Clock enable input for I0
+      I  => clk_10m                     -- 1-bit input: Primary clock
+      );
 
 
   freq_div : entity work.freq_ctr_div

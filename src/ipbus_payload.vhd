@@ -6,7 +6,7 @@
 -- Author     : sdong  <sdong@sdong-ubuntu>
 -- Company    : 
 -- Created    : 2021-10-28
--- Last update: 2021-11-01
+-- Last update: 2021-11-06
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -41,8 +41,10 @@ entity ipbus_payload is
     ipb_out : out ipb_rbus;
 
     -- Chip System Clock
-    clk : in std_logic;
-    rst : in std_logic;
+    clk     : in std_logic;
+    clk_10m : in std_logic;
+    rst     : in std_logic;
+    rst_10m : in std_logic;
 
     -- Global
     nuke     : out std_logic;
@@ -256,8 +258,8 @@ begin
       ipb_in  => ipbw(N_SLV_AD9252),
       ipb_out => ipbr(N_SLV_AD9252),
 
-      clk => clk,                       -- 10 MHz
-      rst => rst,
+      clk => clk_10m,                   -- 10 MHz
+      rst => rst_10m,
 
       device_rst     => device_rst,
       ad9252_start   => ad9252_start,
